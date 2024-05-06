@@ -1,6 +1,7 @@
 package database
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"os"
@@ -10,13 +11,18 @@ import (
 
 func ConnectDB() (*sql.DB, error) {
 
-	connectionString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-	)
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+	dbName := os.Getenv("DB_NAME")
+	dbUsername := os.Getenv("DB_USERNAME")
+	dbPassword := os.Getenv("DB_PASSWORD")
+	dbParams := os.Getenv("DB_PARAMS")
+
+	connectionString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?%s", dbUsername, dbPassword, dbHost, dbPort, dbName, dbParams)
+
+	// Define connection pool parameters (adjust as needed)
+	maxOpenConns := 20
+	maxIdleConns := 10
 
 	db, err := sql.Open("postgres", connectionString)
 
@@ -24,8 +30,14 @@ func ConnectDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	errConn := db.Ping()
-	if errConn != nil {
+	// Create connection pool
+	db.SetMaxOpenConns(maxOpenConns)
+	db.SetMaxIdleConns(maxIdleConns)
+
+	ctx := context.Background()
+	err = db.PingContext(ctx)
+	if err != nil {
+		db.Close()
 		err = fmt.Errorf("failed to connect to db: %s", err)
 		return nil, err
 	}
