@@ -22,8 +22,8 @@ func AuthHandler(authRoute *echo.Group, usecase interfaces.Usecase, repository i
 		Json:       Json,
 	}
 
-	authRoute.POST("/login", handler.Login)
-	authRoute.POST("/register", handler.Register)
+	authRoute.POST("/staff/login", handler.Login)
+	authRoute.POST("/staff/register", handler.Register)
 }
 
 func (h *handlerAuth) Login(c echo.Context) error {

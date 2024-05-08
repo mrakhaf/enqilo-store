@@ -9,8 +9,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	authStaffHandler "github.com/mrakhaf/enqilo-store/domain/auth-staff/delivery/http"
-	"github.com/mrakhaf/enqilo-store/domain/auth-staff/repository"
-	"github.com/mrakhaf/enqilo-store/domain/auth-staff/usecase"
+	authRepository "github.com/mrakhaf/enqilo-store/domain/auth-staff/repository"
+	authUsecase "github.com/mrakhaf/enqilo-store/domain/auth-staff/usecase"
+	productHandler "github.com/mrakhaf/enqilo-store/domain/product/delivery/http"
+	productRepository "github.com/mrakhaf/enqilo-store/domain/product/repository"
+	productUsecase "github.com/mrakhaf/enqilo-store/domain/product/usecase"
 	"github.com/mrakhaf/enqilo-store/shared/common"
 	formatJson "github.com/mrakhaf/enqilo-store/shared/common/json"
 	"github.com/mrakhaf/enqilo-store/shared/common/jwt"
@@ -41,7 +44,7 @@ func main() {
 	})
 
 	//create group
-	userGroup := e.Group("/v1/staff")
+	group := e.Group("/v1")
 
 	// catGroup := e.Group("/v1/cat")
 	// catGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
@@ -54,12 +57,14 @@ func main() {
 	jwtAccess := jwt.NewJWT()
 
 	//auth-staff
-	authRepo := repository.NewRepository(database)
-	authUsecase := usecase.NewUsecase(authRepo, jwtAccess)
-	authStaffHandler.AuthHandler(userGroup, authUsecase, authRepo, formatResponse)
+	authRepo := authRepository.NewRepository(database)
+	authUsecase := authUsecase.NewUsecase(authRepo, jwtAccess)
+	authStaffHandler.AuthHandler(group, authUsecase, authRepo, formatResponse)
 
-	//cat
-	// catHandler.CatHandler(catGroup, formatResponse, jwtAccess)
+	//product
+	productRepo := productRepository.NewRepository(database)
+	productUsecase := productUsecase.NewUsecase(productRepo)
+	productHandler.ProductHandler(group, productUsecase, productRepo, formatResponse)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }

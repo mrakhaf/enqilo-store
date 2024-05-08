@@ -1,7 +1,7 @@
 package request
 
 type Login struct {
-	PhoneNumber string `json:"phoneNumber" validate:"required"`
+	PhoneNumber string `json:"phoneNumber" validate:"required,min=10,max=16,startswith=+"`
 	Password    string `json:"password" validate:"required,min=5,max=15"`
 }
 

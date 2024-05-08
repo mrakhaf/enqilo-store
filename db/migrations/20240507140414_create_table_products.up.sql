@@ -1,0 +1,13 @@
+CREATE TABLE products (
+    id VARCHAR(255) PRIMARY KEY,
+    name VARCHAR(30) NOT NULL,
+    sku VARCHAR(30) NOT NULL,
+    category VARCHAR(30) NOT NULL,
+    imageurl VARCHAR(255) NOT NULL,
+    notes VARCHAR(255) NOT NULL,
+    price INT NOT NULL,
+    stock INT NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    isAvailable BOOLEAN NOT NULL,
+    createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
