@@ -11,6 +11,9 @@ import (
 	authStaffHandler "github.com/mrakhaf/enqilo-store/domain/auth-staff/delivery/http"
 	authRepository "github.com/mrakhaf/enqilo-store/domain/auth-staff/repository"
 	authUsecase "github.com/mrakhaf/enqilo-store/domain/auth-staff/usecase"
+	customerHandler "github.com/mrakhaf/enqilo-store/domain/customer/delivery/http"
+	customerRepository "github.com/mrakhaf/enqilo-store/domain/customer/repository"
+	customerUsecase "github.com/mrakhaf/enqilo-store/domain/customer/usecase"
 	productHandler "github.com/mrakhaf/enqilo-store/domain/product/delivery/http"
 	productRepository "github.com/mrakhaf/enqilo-store/domain/product/repository"
 	productUsecase "github.com/mrakhaf/enqilo-store/domain/product/usecase"
@@ -65,6 +68,11 @@ func main() {
 	productRepo := productRepository.NewRepository(database)
 	productUsecase := productUsecase.NewUsecase(productRepo)
 	productHandler.ProductHandler(group, productUsecase, productRepo, formatResponse)
+
+	//customer
+	customerRepo := customerRepository.NewRepository(database)
+	customerUsecase := customerUsecase.NewUsecase(customerRepo)
+	customerHandler.CustomerHandler(group, customerUsecase, customerRepo, formatResponse)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }
