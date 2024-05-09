@@ -12,8 +12,8 @@ func NewResponse() common.JSON {
 	return &response{}
 }
 
-func (c *response) Ok(ctx echo.Context, message string, data interface{}) error {
-	return ctx.JSON(200, map[string]interface{}{
+func (c *response) FormatJson(ctx echo.Context, status int, message string, data interface{}) error {
+	return ctx.JSON(status, map[string]interface{}{
 		"message": message,
 		"data":    data,
 	})

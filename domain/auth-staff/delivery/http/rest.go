@@ -64,7 +64,7 @@ func (h *handlerAuth) Login(c echo.Context) error {
 	data.Id = dataUser.Id
 	data.Name = dataUser.Name
 
-	return h.Json.Ok(c, "User logged successfully", data)
+	return h.Json.FormatJson(c, http.StatusOK, "Login success", data)
 
 }
 
@@ -97,5 +97,5 @@ func (h *handlerAuth) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	return h.Json.Ok(c, "User registered successfully", data)
+	return h.Json.FormatJson(c, http.StatusCreated, "Register success", data)
 }

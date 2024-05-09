@@ -46,11 +46,11 @@ func main() {
 	//create group
 	group := e.Group("/v1")
 
-	// catGroup := e.Group("/v1/cat")
-	// catGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
-	// 	SigningMethod: "HS256",
-	// 	SigningKey:    []byte("secret"),
-	// }))
+	productGroup := e.Group("/v1")
+	productGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		SigningMethod: "HS256",
+		SigningKey:    []byte("secret"),
+	}))
 
 	//
 	formatResponse := formatJson.NewResponse()
@@ -64,7 +64,7 @@ func main() {
 	//product
 	productRepo := productRepository.NewRepository(database)
 	productUsecase := productUsecase.NewUsecase(productRepo)
-	productHandler.ProductHandler(group, productUsecase, productRepo, formatResponse)
+	productHandler.ProductHandler(productGroup, productUsecase, productRepo, formatResponse)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }

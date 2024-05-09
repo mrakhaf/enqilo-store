@@ -1,13 +1,6 @@
-package entity
+package response
 
-type User struct {
-	Id          string
-	PhoneNumber string
-	Password    string
-	Name        string
-}
-
-type Product struct {
+type GetProduct struct {
 	Id          string `json:"id"`
 	Name        string `json:"name" validate:"required,min=1,max=30"`
 	Sku         string `json:"sku" validate:"required,min=1,max=30"`
