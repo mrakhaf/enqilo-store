@@ -48,6 +48,15 @@ func (u *usecase) Checkout(ctx context.Context, req request.Checkout) (id string
 		return
 	}
 
+	for _, item := range req.ProductDetails {
+		product, _ := u.productRepo.GetDataProductById(item.ProductId)
+
+		if product.Id == "" {
+			err = fmt.Errorf("product not found")
+			return
+		}
+	}
+
 	id, createdAt, err = u.productRepo.Checkout(req)
 
 	if err != nil {

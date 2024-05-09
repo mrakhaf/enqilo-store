@@ -68,6 +68,9 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 		if err.Error() == "customer account not found" {
 			return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
 		}
+		if err.Error() == "product not found" {
+			return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
+		}
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
