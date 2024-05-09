@@ -8,4 +8,8 @@ import (
 type Repository interface {
 	SaveProduct(data request.CreateProduct) (id string, createdAt string, err error)
 	SearchProduct(query string) (products []entity.Product, err error)
+	SearchProducts(query string) (data []entity.Product, err error)
+	GetDataProductById(id string) (data entity.Product, err error)
+	UpdateProduct(id string, req request.CreateProduct) (err error)
+	DeleteProduct(id string) (err error)
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/mrakhaf/enqilo-store/domain/product/interfaces"
@@ -54,12 +55,85 @@ func (r *repoHandler) SearchProduct(query string) (products []entity.Product, er
 	for rows.Next() {
 
 		err = rows.Scan(&product.Id, &product.Name, &product.Sku, &product.Category, &product.ImageUrl, &product.Price, &product.Stock, &product.Location, &product.CreatedAt)
+    
+    	products = append(products, product)
+  }
+  
+  return
+}
+
+func (r *repoHandler) SearchProducts(query string) (data []entity.Product, err error) {
+
+	row, err := r.databaseDB.Query(query)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return data, nil
+		}
+		return
+	}
+
+	for row.Next() {
+		var id, name, sku, category, imageurl, notes, location string
+		var price, stock int
+		var isAvailable bool
+		var createdAt string
+
+		err = row.Scan(&id, &name, &sku, &category, &imageurl, &notes, &price, &stock, &location, &isAvailable, &createdAt)
 
 		if err != nil {
 			return
 		}
 
-		products = append(products, product)
+		data = append(data, entity.Product{
+			Id:          id,
+			Name:        name,
+			Sku:         sku,
+			Category:    category,
+			ImageUrl:    imageurl,
+			Notes:       notes,
+			Price:       price,
+			Stock:       stock,
+			Location:    location,
+			IsAvailable: isAvailable,
+			CreatedAt:   createdAt,
+		})
+	}
+
+	return
+
+}
+
+func (r *repoHandler) GetDataProductById(id string) (data entity.Product, err error) {
+	row := r.databaseDB.QueryRow(fmt.Sprintf("SELECT id, name, sku, category, imageurl, notes, price, stock, location, isAvailable, createdAt FROM products WHERE id = '%s'", id))
+
+	err = row.Scan(&data.Id, &data.Name, &data.Sku, &data.Category, &data.ImageUrl, &data.Notes, &data.Price, &data.Stock, &data.Location, &data.IsAvailable, &data.CreatedAt)
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (r *repoHandler) UpdateProduct(id string, req request.CreateProduct) (err error) {
+
+	_, err = r.databaseDB.Exec(fmt.Sprintf("UPDATE products SET name = '%s', sku = '%s', category = '%s', imageurl = '%s', notes = '%s', price = '%d', stock = '%d', location = '%s', isAvailable = '%t' WHERE id = '%s'", req.Name, req.Sku, req.Category, req.ImageUrl, req.Notes, req.Price, req.Stock, req.Location, req.IsAvailable, id))
+
+	if err != nil {
+		return
+	}
+
+	return
+}
+
+func (r *repoHandler) DeleteProduct(id string) (err error) {
+
+	_, err = r.databaseDB.Exec(fmt.Sprintf("DELETE FROM products WHERE id = '%s'", id))
+
+	if err != nil {
+		log.Printf("failed to delete product: %s", err)
+		return
 	}
 
 	return
