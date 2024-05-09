@@ -126,7 +126,7 @@ func (u *usecase) DeleteProduct(ctx context.Context, id string) (err error) {
 	return
 }
 
-func (u *usecase) SearchProduct(req request.SearchProductParam) (data interface{}, err error) {
+func (u *usecase) SearchSku(req request.SearchProductParam) (data interface{}, err error) {
 
 	query := "SELECT id, name, sku, category, imageurl, price, stock, location, createdat FROM products"
 
@@ -200,7 +200,7 @@ func (u *usecase) SearchProduct(req request.SearchProductParam) (data interface{
 		query = fmt.Sprintf("%s OFFSET 0", query)
 	}
 
-	products, err := u.repository.SearchProduct(query)
+	products, err := u.repository.SearchSku(query)
 
 	if err != nil {
 		err = fmt.Errorf("failed to search product: %s", err)
@@ -210,8 +210,6 @@ func (u *usecase) SearchProduct(req request.SearchProductParam) (data interface{
 	productsResponse := []response.Products{}
 
 	for _, product := range products {
-		createdAt := product.CreatedAt.Format("2006-01-02")
-
 		productsResponse = append(productsResponse, response.Products{
 			Id:        product.Id,
 			Name:      product.Name,
@@ -221,7 +219,7 @@ func (u *usecase) SearchProduct(req request.SearchProductParam) (data interface{
 			Price:     product.Price,
 			Stock:     product.Stock,
 			Location:  product.Location,
-			CreatedAt: createdAt,
+			CreatedAt: product.CreatedAt.Format("2006-01-02"),
 		})
 	}
 

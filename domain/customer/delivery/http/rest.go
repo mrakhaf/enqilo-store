@@ -46,5 +46,5 @@ func (h *handlerProduct) Register(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
-	return h.Json.Ok(c, "User registered successfully", data)
+	return h.Json.FormatJson(c, http.StatusOK, "User registered successfully", data)
 }

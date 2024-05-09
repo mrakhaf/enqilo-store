@@ -40,7 +40,7 @@ func (r *repoHandler) SaveProduct(data request.CreateProduct) (id string, create
 	return
 }
 
-func (r *repoHandler) SearchProduct(query string) (products []entity.Product, err error) {
+func (r *repoHandler) SearchSku(query string) (products []entity.Product, err error) {
 
 	rows, err := r.databaseDB.Query(query)
 
@@ -55,11 +55,11 @@ func (r *repoHandler) SearchProduct(query string) (products []entity.Product, er
 	for rows.Next() {
 
 		err = rows.Scan(&product.Id, &product.Name, &product.Sku, &product.Category, &product.ImageUrl, &product.Price, &product.Stock, &product.Location, &product.CreatedAt)
-    
-    	products = append(products, product)
-  }
-  
-  return
+
+		products = append(products, product)
+	}
+
+	return
 }
 
 func (r *repoHandler) SearchProducts(query string) (data []entity.Product, err error) {
@@ -77,7 +77,7 @@ func (r *repoHandler) SearchProducts(query string) (data []entity.Product, err e
 		var id, name, sku, category, imageurl, notes, location string
 		var price, stock int
 		var isAvailable bool
-		var createdAt string
+		var createdAt time.Time
 
 		err = row.Scan(&id, &name, &sku, &category, &imageurl, &notes, &price, &stock, &location, &isAvailable, &createdAt)
 
