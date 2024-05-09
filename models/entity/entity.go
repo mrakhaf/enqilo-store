@@ -9,6 +9,12 @@ type User struct {
 	Name        string
 }
 
+type Customer struct {
+	Id          string
+	PhoneNumber string
+	Name        string
+}
+
 type Product struct {
 	Id          string
 	Name        string
