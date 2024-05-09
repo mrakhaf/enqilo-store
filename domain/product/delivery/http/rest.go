@@ -24,10 +24,10 @@ func ProductHandler(productRoute *echo.Group, usecase interfaces.Usecase, reposi
 	}
 
 	productRoute.POST("/product", handler.CreateProduct)
+	productRoute.GET("/product/customer", handler.SearchProduct)
 	productRoute.GET("/product", handler.GetProducts)
 	productRoute.PUT("/product/:id", handler.UpdateProduct)
 	productRoute.DELETE("/product/:id", handler.DeleteProduct)
-
 }
 
 func (h *handlerProduct) CreateProduct(c echo.Context) error {
@@ -117,4 +117,25 @@ func (h *handlerProduct) DeleteProduct(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 	return c.JSON(http.StatusOK, map[string]string{"message": "delete success"})
+}
+
+func (h *handlerProduct) SearchProduct(c echo.Context) error {
+
+	var req request.SearchProductParam
+
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, &req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	data, err := h.usecase.SearchProduct(req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return h.Json.Ok(c, "Succss", data)
 }

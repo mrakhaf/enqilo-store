@@ -24,3 +24,13 @@ type GetProducts struct {
 	InStock     *string `json:"inStock" validate:"omitempty"`
 	CreatedAt   *string `json:"createdAt" validate:"omitempty"`
 }
+
+type SearchProductParam struct {
+	Limit    *int    `query:"limit" validate:"omitempty,gte=0,lte=5"`
+	Offset   *int    `query:"offset" validate:"omitempty,gte=0"`
+	Name     *string `query:"name" validate:"omitempty"`
+	Category *string `query:"category" validate:"omitempty"`
+	Sku      *string `query:"sku" validate:"omitempty"`
+	Price    *string `query:"price" validate:"omitempty"`
+	InStock  *string `query:"inStock" validate:"omitempty"`
+}
