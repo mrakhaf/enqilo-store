@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 
+	customer "github.com/mrakhaf/enqilo-store/domain/customer/interfaces"
 	"github.com/mrakhaf/enqilo-store/domain/product/interfaces"
+	product "github.com/mrakhaf/enqilo-store/domain/product/interfaces"
+
 	"github.com/mrakhaf/enqilo-store/models/entity"
 	"github.com/mrakhaf/enqilo-store/models/request"
 	"github.com/mrakhaf/enqilo-store/models/response"
@@ -12,18 +15,20 @@ import (
 )
 
 type usecase struct {
-	repository interfaces.Repository
+	customerRepo customer.Repository
+	productRepo  product.Repository
 }
 
-func NewUsecase(repository interfaces.Repository) interfaces.Usecase {
+func NewUsecase(customerRepo customer.Repository, productRepo product.Repository) interfaces.Usecase {
 	return &usecase{
-		repository: repository,
+		customerRepo: customerRepo,
+		productRepo:  productRepo,
 	}
 }
 
 func (u *usecase) CreateProduct(ctx context.Context, data request.CreateProduct) (id string, createdAt string, err error) {
 
-	id, createdAt, err = u.repository.SaveProduct(data)
+	id, createdAt, err = u.productRepo.SaveProduct(data)
 
 	if err != nil {
 		err = fmt.Errorf("failed to save product: %s", err)
@@ -32,6 +37,25 @@ func (u *usecase) CreateProduct(ctx context.Context, data request.CreateProduct)
 
 	return
 
+}
+
+func (u *usecase) Checkout(ctx context.Context, req request.Checkout) (id string, createdAt string, err error) {
+
+	customer, _ := u.customerRepo.SearchCustomerAccount(req.CustomerId)
+
+	if customer.Id == "" {
+		err = fmt.Errorf("customer account not found")
+		return
+	}
+
+	id, createdAt, err = u.productRepo.Checkout(req)
+
+	if err != nil {
+		err = fmt.Errorf("failed to checkout product: %s", err)
+		return
+	}
+
+	return
 }
 
 func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (data []entity.Product, err error) {
@@ -92,7 +116,7 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 
 	fmt.Println(query)
 
-	data, err = u.repository.SearchProducts(query)
+	data, err = u.productRepo.SearchProducts(query)
 
 	if err != nil {
 		err = fmt.Errorf("failed to search products: %s", err)
@@ -104,7 +128,7 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 
 func (u *usecase) UpdateProduct(ctx context.Context, id string, req request.CreateProduct) (err error) {
 
-	err = u.repository.UpdateProduct(id, req)
+	err = u.productRepo.UpdateProduct(id, req)
 
 	if err != nil {
 		err = fmt.Errorf("failed to update product: %s", err)
@@ -116,7 +140,7 @@ func (u *usecase) UpdateProduct(ctx context.Context, id string, req request.Crea
 }
 
 func (u *usecase) DeleteProduct(ctx context.Context, id string) (err error) {
-	err = u.repository.DeleteProduct(id)
+	err = u.productRepo.DeleteProduct(id)
 
 	if err != nil {
 		err = fmt.Errorf("failed to delete product: %s", err)
@@ -200,7 +224,7 @@ func (u *usecase) SearchSku(req request.SearchProductParam) (data interface{}, e
 		query = fmt.Sprintf("%s OFFSET 0", query)
 	}
 
-	products, err := u.repository.SearchSku(query)
+	products, err := u.productRepo.SearchSku(query)
 
 	if err != nil {
 		err = fmt.Errorf("failed to search product: %s", err)

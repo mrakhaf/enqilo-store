@@ -45,3 +45,15 @@ func (r *repoHandler) GetDataAccount(phoneNumber string) (data entity.Customer, 
 
 	return
 }
+
+func (r *repoHandler) SearchCustomerAccount(id string) (data entity.Customer, err error) {
+	row := r.databaseDB.QueryRow(fmt.Sprintf("SELECT id, phonenumber, name FROM customer WHERE id = '%s'", id))
+
+	err = row.Scan(&data.Id, &data.PhoneNumber, &data.Name)
+
+	if err != nil {
+		return
+	}
+
+	return
+}

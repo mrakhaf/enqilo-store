@@ -64,15 +64,15 @@ func main() {
 	authUsecase := authUsecase.NewUsecase(authRepo, jwtAccess)
 	authStaffHandler.AuthHandler(group, authUsecase, authRepo, formatResponse)
 
-	//product
-	productRepo := productRepository.NewRepository(database)
-	productUsecase := productUsecase.NewUsecase(productRepo)
-	productHandler.ProductHandler(productGroup, productUsecase, productRepo, formatResponse)
-
 	//customer
 	customerRepo := customerRepository.NewRepository(database)
 	customerUsecase := customerUsecase.NewUsecase(customerRepo)
 	customerHandler.CustomerHandler(group, customerUsecase, customerRepo, formatResponse)
+
+	//product
+	productRepo := productRepository.NewRepository(database)
+	productUsecase := productUsecase.NewUsecase(customerRepo, productRepo)
+	productHandler.ProductHandler(productGroup, productUsecase, productRepo, formatResponse)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }
