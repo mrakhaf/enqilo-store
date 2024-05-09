@@ -12,6 +12,18 @@ type CreateProduct struct {
 	IsAvailable bool   `json:"isAvailable" validate:"required"`
 }
 
+type ProductDetails struct {
+	ProductId string `json:"productId" validate:"required"`
+	Quantity  int    `json:"quantity" validate:"required,gte=0,lte=100000"`
+}
+
+type Checkout struct {
+	CustomerId     string           `json:"customerId" validate:"required"`
+	ProductDetails []ProductDetails `json:"productDetails" validate:"required"`
+	Paid           int              `json:"paid" validate:"required"`
+	Change         int              `json:"change" validate:"min=0"`
+}
+
 type GetProducts struct {
 	Id          *string `json:"id" validate:"omitempty"`
 	Limit       *int    `json:"limit" validate:"omitempty,gte=0,lte=5"`

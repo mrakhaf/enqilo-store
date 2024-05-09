@@ -24,6 +24,7 @@ func ProductHandler(productRoute *echo.Group, usecase interfaces.Usecase, reposi
 	}
 
 	productRoute.POST("/product", handler.CreateProduct)
+	productRoute.POST("/product/checkout", handler.Checkout)
 	productRoute.GET("/product/customer", handler.SearchSku)
 	productRoute.GET("/product", handler.GetProducts)
 	productRoute.PUT("/product/:id", handler.UpdateProduct)
@@ -48,6 +49,29 @@ func (h *handlerProduct) CreateProduct(c echo.Context) error {
 	}
 
 	return h.Json.FormatJson(c, http.StatusCreated, "success", map[string]string{"id": id, "createdAt": createdAt})
+}
+
+func (h *handlerProduct) Checkout(c echo.Context) error {
+	var req request.Checkout
+
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	id, createdAt, err := h.usecase.Checkout(c.Request().Context(), req)
+
+	if err != nil {
+		if err.Error() == "customer account not found" {
+			return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
+		}
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return h.Json.FormatJson(c, http.StatusOK, "success", map[string]string{"id": id, "createdAt": createdAt})
 }
 
 func (h *handlerProduct) GetProducts(c echo.Context) error {

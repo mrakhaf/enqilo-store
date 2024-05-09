@@ -40,6 +40,26 @@ func (r *repoHandler) SaveProduct(data request.CreateProduct) (id string, create
 	return
 }
 
+func (r *repoHandler) Checkout(data request.Checkout) (id string, createdAt string, err error) {
+
+	for _, detail := range data.ProductDetails {
+		id = utils.GenerateUUID()
+		timeNow := time.Now()
+
+		query := fmt.Sprintf(`INSERT INTO customer_products (id, customerId, productId, quantity, paid, change, createdAt) VALUES ('%s', '%s', '%s', %d, %d, %d, '%s')`, id, data.CustomerId, detail.ProductId, detail.Quantity, data.Paid, data.Change, timeNow.Format("2006-01-02 15:04:05"))
+
+		_, err = r.databaseDB.Exec(query)
+
+		if err != nil {
+			return
+		}
+
+		createdAt = timeNow.Format("2006-01-02")
+	}
+
+	return
+}
+
 func (r *repoHandler) SearchSku(query string) (products []entity.Product, err error) {
 
 	rows, err := r.databaseDB.Query(query)
