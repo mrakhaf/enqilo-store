@@ -24,6 +24,7 @@ func ProductHandler(productRoute *echo.Group, usecase interfaces.Usecase, reposi
 	}
 
 	productRoute.POST("/product", handler.CreateProduct)
+	productRoute.GET("/product/customer", handler.SearchProduct)
 
 }
 
@@ -58,4 +59,25 @@ func (h *handlerProduct) GetProduct(c echo.Context) error {
 	fmt.Println(req)
 
 	return c.JSON(http.StatusOK, map[string]string{"message": "Get product"})
+}
+
+func (h *handlerProduct) SearchProduct(c echo.Context) error {
+
+	var req request.SearchProductParam
+
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, &req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	data, err := h.usecase.SearchProduct(req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return h.Json.Ok(c, "Succss", data)
 }
