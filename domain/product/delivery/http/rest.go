@@ -16,7 +16,7 @@ type handlerProduct struct {
 	Json       common.JSON
 }
 
-func ProductHandler(productRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON) {
+func ProductHandler(productRoute *echo.Group, publicRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON) {
 	handler := &handlerProduct{
 		usecase:    usecase,
 		repository: repository,
@@ -25,7 +25,7 @@ func ProductHandler(productRoute *echo.Group, usecase interfaces.Usecase, reposi
 
 	productRoute.POST("/product", handler.CreateProduct)
 	productRoute.POST("/product/checkout", handler.Checkout)
-	productRoute.GET("/product/customer", handler.SearchSku)
+	publicRoute.GET("/product/customer", handler.SearchSku)
 	productRoute.GET("/product", handler.GetProducts)
 	productRoute.PUT("/product/:id", handler.UpdateProduct)
 	productRoute.DELETE("/product/:id", handler.DeleteProduct)
