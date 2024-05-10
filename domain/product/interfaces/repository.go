@@ -3,11 +3,13 @@ package interfaces
 import (
 	"github.com/mrakhaf/enqilo-store/models/entity"
 	"github.com/mrakhaf/enqilo-store/models/request"
+	"github.com/mrakhaf/enqilo-store/models/response"
 )
 
 type Repository interface {
 	SaveProduct(data request.CreateProduct) (id string, createdAt string, err error)
 	SearchSku(query string) (products []entity.Product, err error)
+	GetCheckoutHistory(query string) (data []response.CheckoutHistory, err error)
 	Checkout(data request.Checkout) (id string, createdAt string, err error)
 	SearchProducts(query string) (data []entity.Product, err error)
 	GetDataProductById(id string) (data entity.Product, err error)

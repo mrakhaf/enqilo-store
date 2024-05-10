@@ -275,3 +275,71 @@ func (u *usecase) SearchSku(req request.SearchProductParam) (data interface{}, e
 
 	return
 }
+
+func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckoutHistoryParam) (data interface{}, err error) {
+
+	query := "select cp.id as \"transactionId\", c.id as \"customerId\", p.id as \"productId\", cp.quantity, cp.paid, cp.\"change\", cp.createdat from customer_products cp " +
+		"join customer c on cp.customerid = c.id " +
+		"join products p on cp.productid = p.id"
+
+	var firstFilterParam bool
+
+	if req.CustomerId != nil {
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE cp.id = '%s'", query, *req.CustomerId)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND cp.id = '%s'", query, *req.CustomerId)
+		}
+	}
+
+	if req.CreatedAt != nil {
+		if *req.CreatedAt == "asc" {
+			query = fmt.Sprintf("%s ORDER BY createdat ASC", query)
+		} else if *req.CreatedAt == "desc" {
+			query = fmt.Sprintf("%s ORDER BY createdat DESC", query)
+		}
+	}
+
+	if req.Limit != nil {
+		query = fmt.Sprintf("%s LIMIT %d", query, *req.Limit)
+	} else {
+		query = fmt.Sprintf("%s LIMIT 5", query)
+	}
+
+	if req.Offset != nil {
+		query = fmt.Sprintf("%s OFFSET %d", query, *req.Offset)
+	} else {
+		query = fmt.Sprintf("%s OFFSET 0", query)
+	}
+
+	checkoutHistories, err := u.productRepo.GetCheckoutHistory(query)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get history checkout: %s", err)
+		return
+	}
+
+	checkoutHistoriesResponse := []response.CheckoutHistories{}
+
+	for _, item := range checkoutHistories {
+		checkoutHistoriesResponse = append(checkoutHistoriesResponse, response.CheckoutHistories{
+			TransactionId: item.TransactionId,
+			CustomerId:    item.CustomerId,
+			ProductDetails: []response.ProductDetails{
+				{
+					ProductId: item.ProductId,
+					Quantity:  item.Quantity,
+				},
+			},
+			Quantity:  item.Quantity,
+			Paid:      item.Paid,
+			Change:    item.Change,
+			CreatedAt: item.CreatedAt,
+		})
+	}
+
+	data = checkoutHistoriesResponse
+
+	return
+}
