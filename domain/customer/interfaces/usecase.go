@@ -9,4 +9,5 @@ import (
 
 type Usecase interface {
 	Register(ctx context.Context, req request.RegisterCustomer) (data response.CustomerResponse, err error)
+	GetCustomers(ctx context.Context, query request.GetAllCustomerParam) (data interface{}, err error)
 }

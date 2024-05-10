@@ -15,14 +15,15 @@ type handlerProduct struct {
 	Json       common.JSON
 }
 
-func CustomerHandler(productRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON) {
+func CustomerHandler(customerRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON) {
 	handler := &handlerProduct{
 		usecase:    usecase,
 		repository: repository,
 		Json:       json,
 	}
 
-	productRoute.POST("/customer/register", handler.Register)
+	customerRoute.POST("/customer/register", handler.Register)
+	customerRoute.GET("/customer", handler.GetCustomers)
 
 }
 
@@ -47,4 +48,24 @@ func (h *handlerProduct) Register(c echo.Context) error {
 	}
 
 	return h.Json.FormatJson(c, http.StatusOK, "User registered successfully", data)
+}
+
+func (h *handlerProduct) GetCustomers(c echo.Context) error {
+	var req request.GetAllCustomerParam
+
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, &req); err != nil {
+		return err
+	}
+
+	if err := c.Validate(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	data, err := h.usecase.GetCustomers(c.Request().Context(), req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return h.Json.FormatJson(c, http.StatusOK, "Success get data", data)
 }
