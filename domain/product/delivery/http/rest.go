@@ -25,6 +25,7 @@ func ProductHandler(productRoute *echo.Group, publicRoute *echo.Group, usecase i
 
 	productRoute.POST("/product", handler.CreateProduct)
 	productRoute.POST("/product/checkout", handler.Checkout)
+	productRoute.GET("/product/checkout/history", handler.GetCheckoutHistory)
 	publicRoute.GET("/product/customer", handler.SearchSku)
 	productRoute.GET("/product", handler.GetProducts)
 	productRoute.PUT("/product/:id", handler.UpdateProduct)
@@ -162,6 +163,27 @@ func (h *handlerProduct) SearchSku(c echo.Context) error {
 	}
 
 	data, err := h.usecase.SearchSku(req)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+
+	return h.Json.FormatJson(c, http.StatusOK, "Success get data", data)
+}
+
+func (h *handlerProduct) GetCheckoutHistory(c echo.Context) error {
+
+	var req request.GetCheckoutHistoryParam
+
+	if err := (&echo.DefaultBinder{}).BindQueryParams(c, &req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	if err := c.Validate(req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	data, err := h.usecase.GetCheckoutHistory(c.Request().Context(), req)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})

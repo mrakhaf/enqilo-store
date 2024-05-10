@@ -9,6 +9,7 @@ import (
 	"github.com/mrakhaf/enqilo-store/domain/product/interfaces"
 	"github.com/mrakhaf/enqilo-store/models/entity"
 	"github.com/mrakhaf/enqilo-store/models/request"
+	"github.com/mrakhaf/enqilo-store/models/response"
 	"github.com/mrakhaf/enqilo-store/shared/utils"
 )
 
@@ -154,6 +155,28 @@ func (r *repoHandler) DeleteProduct(id string) (err error) {
 	if err != nil {
 		log.Printf("failed to delete product: %s", err)
 		return
+	}
+
+	return
+}
+
+func (r *repoHandler) GetCheckoutHistory(query string) (products []response.CheckoutHistory, err error) {
+
+	rows, err := r.databaseDB.Query(query)
+
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	checkoutHistories := response.CheckoutHistory{}
+
+	for rows.Next() {
+
+		err = rows.Scan(&checkoutHistories.TransactionId, &checkoutHistories.CustomerId, &checkoutHistories.ProductId, &checkoutHistories.Quantity, &checkoutHistories.Paid, &checkoutHistories.Change, &checkoutHistories.CreatedAt)
+
+		products = append(products, checkoutHistories)
 	}
 
 	return

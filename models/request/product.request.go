@@ -46,3 +46,10 @@ type SearchProductParam struct {
 	Price    *string `query:"price" validate:"omitempty"`
 	InStock  *string `query:"inStock" validate:"omitempty"`
 }
+
+type GetCheckoutHistoryParam struct {
+	CustomerId *string `query:"customerId" validate:"omitempty"`
+	Limit      *int    `query:"limit" validate:"omitempty,gte=0,lte=5"`
+	Offset     *int    `query:"offset" validate:"omitempty,gte=0"`
+	CreatedAt  *string `query:"createdAt" validate:"omitempty"`
+}
