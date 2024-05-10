@@ -64,13 +64,16 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 
 	id, createdAt, err := h.usecase.Checkout(c.Request().Context(), req)
 
-	if err != nil {
-		if err.Error() == "customer account not found" {
-			return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
-		}
-		if err.Error() == "product not found" {
-			return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
-		}
+	switch {
+	case err != nil && err.Error() == "customer account not found":
+		return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
+	case err != nil && err.Error() == "product not found":
+		return c.JSON(http.StatusNotFound, map[string]string{"message": err.Error()})
+	case err != nil && err.Error() == "paid is less than total":
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	case err != nil && err.Error() == "change is not right":
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	case err != nil:
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
