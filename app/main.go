@@ -72,7 +72,7 @@ func main() {
 	//product
 	productRepo := productRepository.NewRepository(database)
 	productUsecase := productUsecase.NewUsecase(customerRepo, productRepo)
-	productHandler.ProductHandler(productGroup, productUsecase, productRepo, formatResponse)
+	productHandler.ProductHandler(productGroup, group, productUsecase, productRepo, formatResponse)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }
