@@ -9,4 +9,5 @@ type Repository interface {
 	SaveCustomerAccount(data request.RegisterCustomer) (id string, err error)
 	GetDataAccount(phoneNumber string) (data entity.Customer, err error)
 	SearchCustomerAccount(id string) (data entity.Customer, err error)
+	GetAllCustomer(query string) (data []entity.Customer, err error)
 }

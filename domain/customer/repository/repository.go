@@ -57,3 +57,25 @@ func (r *repoHandler) SearchCustomerAccount(id string) (data entity.Customer, er
 
 	return
 }
+
+func (r *repoHandler) GetAllCustomer(query string) (customers []entity.Customer, err error) {
+
+	rows, err := r.databaseDB.Query(query)
+
+	if err != nil {
+		return
+	}
+
+	defer rows.Close()
+
+	customer := entity.Customer{}
+
+	for rows.Next() {
+
+		err = rows.Scan(&customer.Id, &customer.PhoneNumber, &customer.Name)
+
+		customers = append(customers, customer)
+	}
+
+	return
+}

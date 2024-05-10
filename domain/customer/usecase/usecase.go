@@ -45,3 +45,48 @@ func (u *usecase) Register(ctx context.Context, req request.RegisterCustomer) (d
 
 	return
 }
+
+func (u *usecase) GetCustomers(ctx context.Context, req request.GetAllCustomerParam) (data interface{}, err error) {
+	query := "SELECT id, phonenumber, name FROM customer"
+
+	var firstFilterParam bool
+
+	if req.Name != nil {
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE LOWER(name) LIKE '%%%s%%'", query, *req.Name)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND LOWER(name) LIKE '%%%s%%'", query, *req.Name)
+		}
+	}
+
+	if req.PhoneNumber != nil {
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE phoneNumber LIKE '+%%%s%%'", query, *req.PhoneNumber)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND phoneNumber LIKE '+%%%s%%'", query, *req.PhoneNumber)
+		}
+	}
+
+	customers, err := u.repository.GetAllCustomer(query)
+
+	if err != nil {
+		err = fmt.Errorf("failed to get customers: %s", err)
+		return
+	}
+
+	customerResponses := []response.CustomerResponse{}
+
+	for _, item := range customers {
+		customerResponses = append(customerResponses, response.CustomerResponse{
+			Id:          item.Id,
+			PhoneNumber: item.PhoneNumber,
+			Name:        item.Name,
+		})
+	}
+
+	data = customerResponses
+
+	return
+}
