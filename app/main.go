@@ -53,6 +53,9 @@ func main() {
 	productGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningMethod: "HS256",
 		SigningKey:    []byte("secret"),
+		ErrorHandler: func(err error) error {
+			return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+		},
 	}))
 
 	//
@@ -72,7 +75,7 @@ func main() {
 	//product
 	productRepo := productRepository.NewRepository(database)
 	productUsecase := productUsecase.NewUsecase(customerRepo, productRepo)
-	productHandler.ProductHandler(productGroup, group, productUsecase, productRepo, formatResponse)
+	productHandler.ProductHandler(productGroup, group, productUsecase, productRepo, formatResponse, jwtAccess)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }

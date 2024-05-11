@@ -8,19 +8,22 @@ import (
 	"github.com/mrakhaf/enqilo-store/domain/product/interfaces"
 	"github.com/mrakhaf/enqilo-store/models/request"
 	"github.com/mrakhaf/enqilo-store/shared/common"
+	"github.com/mrakhaf/enqilo-store/shared/common/jwt"
 )
 
 type handlerProduct struct {
 	usecase    interfaces.Usecase
 	repository interfaces.Repository
 	Json       common.JSON
+	JwtAccess  *jwt.JWT
 }
 
-func ProductHandler(productRoute *echo.Group, publicRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON) {
+func ProductHandler(productRoute *echo.Group, publicRoute *echo.Group, usecase interfaces.Usecase, repository interfaces.Repository, json common.JSON, jwtAccess *jwt.JWT) {
 	handler := &handlerProduct{
 		usecase:    usecase,
 		repository: repository,
 		Json:       json,
+		JwtAccess:  jwtAccess,
 	}
 
 	productRoute.POST("/product", handler.CreateProduct)
@@ -33,6 +36,7 @@ func ProductHandler(productRoute *echo.Group, publicRoute *echo.Group, usecase i
 }
 
 func (h *handlerProduct) CreateProduct(c echo.Context) error {
+
 	var req request.CreateProduct
 
 	if err := c.Bind(&req); err != nil {
@@ -135,6 +139,7 @@ func (h *handlerProduct) UpdateProduct(c echo.Context) error {
 }
 
 func (h *handlerProduct) DeleteProduct(c echo.Context) error {
+
 	productID := c.Param("id")
 
 	_, err := h.repository.GetDataProductById(productID)
