@@ -358,18 +358,17 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 
 	if req.CustomerId != nil {
 		if !firstFilterParam {
-			query = fmt.Sprintf("%s WHERE cp.id = '%s'", query, *req.CustomerId)
-			// firstFilterParam = true
+			query = fmt.Sprintf("%s WHERE c2.id = '%s'", query, *req.CustomerId)
 		} else {
-			query = fmt.Sprintf("%s AND cp.id = '%s'", query, *req.CustomerId)
+			query = fmt.Sprintf("%s AND c2.id = '%s'", query, *req.CustomerId)
 		}
 	}
 
 	if req.CreatedAt != nil {
 		if *req.CreatedAt == "asc" {
-			query = fmt.Sprintf("%s ORDER BY createdat ASC", query)
+			query = fmt.Sprintf("%s ORDER BY c.createdat ASC", query)
 		} else if *req.CreatedAt == "desc" {
-			query = fmt.Sprintf("%s ORDER BY createdat DESC", query)
+			query = fmt.Sprintf("%s ORDER BY c.createdat DESC", query)
 		}
 	}
 
