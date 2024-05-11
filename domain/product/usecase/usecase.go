@@ -59,6 +59,16 @@ func (u *usecase) Checkout(ctx context.Context, req request.Checkout) (id string
 			err = fmt.Errorf("product not found")
 			return
 		}
+
+		if product.Stock < item.Quantity {
+			err = fmt.Errorf("stock is not enough")
+			return
+		}
+
+		if !product.IsAvailable {
+			err = fmt.Errorf("product is not available")
+			return
+		}
 	}
 
 	if req.Paid < total {

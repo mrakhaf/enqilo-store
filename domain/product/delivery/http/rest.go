@@ -85,6 +85,10 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	case err != nil && err.Error() == "change is not right":
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	case err != nil && err.Error() == "stock is not enough":
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	case err != nil && err.Error() == "product is not available":
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	case err != nil:
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
