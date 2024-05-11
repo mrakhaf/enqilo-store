@@ -11,7 +11,6 @@ import (
 	"github.com/mrakhaf/enqilo-store/models/entity"
 	"github.com/mrakhaf/enqilo-store/models/request"
 	"github.com/mrakhaf/enqilo-store/models/response"
-	"github.com/mrakhaf/enqilo-store/shared/utils"
 )
 
 type usecase struct {
@@ -83,61 +82,101 @@ func (u *usecase) Checkout(ctx context.Context, req request.Checkout) (id string
 }
 
 func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (data []entity.Product, err error) {
+	var firstFilterParam bool
 
-	query := "SELECT * FROM products WHERE 1=1 "
+	query := "SELECT * FROM products"
 
 	if req.Id != nil {
-		query = fmt.Sprintf("%s AND id = '%s' ", query, *req.Id)
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE id = '%s' ", query, *req.Id)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND id = '%s' ", query, *req.Id)
+		}
 	}
 
 	if req.Name != nil {
-		query = fmt.Sprintf("%s AND name like '%%%s%%' ", query, *req.Name)
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE LOWER(name) like '%%%s%%' ", query, *req.Name)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND WHERE LOWER(name) like '%%%s%%' ", query, *req.Name)
+		}
 	}
 
-	if req.IsAvailable != nil {
-		if *req.IsAvailable == "true" {
-			query = fmt.Sprintf("%s AND isAvailable IS TRUE ", query)
-		} else if *req.IsAvailable == "false" {
-			query = fmt.Sprintf("%s AND isAvailable IS FALSE ", query)
+	if req.IsAvailable != nil && (*req.IsAvailable == "true" || *req.IsAvailable == "false") {
+		if !firstFilterParam {
+			if *req.IsAvailable == "true" {
+				query = fmt.Sprintf("%s WHERE isavailable IS FALSE ", query)
+			} else {
+				query = fmt.Sprintf("%s WHERE isavailable IS TRUE", query)
+			}
+			firstFilterParam = true
+		} else {
+			if *req.IsAvailable == "true" {
+				query = fmt.Sprintf("%s AND isavailable IS FALSE", query)
+			} else {
+				query = fmt.Sprintf("%s AND isavailable IS TRUE", query)
+			}
 		}
 	}
 
 	if req.Category != nil {
-		categories := []string{"Clothing", "Accessories", "Footwear", "Beverages"}
-
-		if utils.Contains(categories, *req.Category) {
-			query = fmt.Sprintf("%s AND category = '%s' ", query, *req.Category)
+		category := *req.Category
+		switch category {
+		case "Clothing", "Accessories", "Footwear", "Beverages":
+			if !firstFilterParam {
+				query = fmt.Sprintf("%s WHERE category = '%s'", query, category)
+				firstFilterParam = true
+			} else {
+				query = fmt.Sprintf("%s AND category = '%s'", query, category)
+			}
 		}
 	}
 
 	if req.Sku != nil {
-		query = fmt.Sprintf("%s AND sku = '%s' ", query, *req.Sku)
-	}
-
-	if req.InStock != nil {
-		if *req.InStock == "true" {
-			query = fmt.Sprintf("%s AND stock > 0 ", query)
-		} else if *req.InStock == "false" {
-			query = fmt.Sprintf("%s AND stock = 0 ", query)
+		if !firstFilterParam {
+			query = fmt.Sprintf("%s WHERE LOWER(sku) LIKE '%%%s%%'", query, *req.Sku)
+			firstFilterParam = true
+		} else {
+			query = fmt.Sprintf("%s AND LOWER(sku) LIKE '%%%s%%'", query, *req.Sku)
 		}
 	}
 
-	if req.Price != nil {
+	if req.InStock != nil && (*req.InStock == "true" || *req.InStock == "false") {
+		if !firstFilterParam {
+			if *req.InStock == "true" {
+				query = fmt.Sprintf("%s WHERE stock > 0", query)
+			} else {
+				query = fmt.Sprintf("%s WHERE stock <= 0", query)
+			}
+		} else {
+			if *req.InStock == "true" {
+				query = fmt.Sprintf("%s AND stock > 0", query)
+			} else {
+				query = fmt.Sprintf("%s AND stock <= 0", query)
+			}
+		}
+	}
+
+	if req.Price != nil && req.CreatedAt == nil {
 		if *req.Price == "asc" {
-			query = fmt.Sprintf("%s ORDER BY price ASC ", query)
+			query = fmt.Sprintf("%s ORDER BY price ASC", query)
 		} else if *req.Price == "desc" {
-			query = fmt.Sprintf("%s ORDER BY price DESC ", query)
+			query = fmt.Sprintf("%s ORDER BY price DESC", query)
 		}
 	}
 
-	if req.CreatedAt != nil {
+	if req.CreatedAt != nil && req.Price == nil {
 		if *req.CreatedAt == "asc" {
-			query = fmt.Sprintf("%s ORDER BY createdat ASC ", query)
+			query = fmt.Sprintf("%s ORDER BY createdat ASC", query)
 		} else if *req.CreatedAt == "desc" {
-			query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
+			query = fmt.Sprintf("%s ORDER BY createdat DESC", query)
 		}
-	} else {
-		query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
+	}
+
+	if req.Price == nil && req.CreatedAt == nil {
+		query = fmt.Sprintf("%s ORDER BY createdat DESC", query)
 	}
 
 	if req.Limit != nil {
@@ -152,14 +191,31 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 		query = fmt.Sprintf("%s OFFSET 0", query)
 	}
 
-	fmt.Println(query)
-
+	fmt.Println(query, "ini query")
 	data, err = u.productRepo.SearchProducts(query)
 
 	if err != nil {
 		err = fmt.Errorf("failed to search products: %s", err)
 		return
 	}
+
+	productResponse := []entity.Product{}
+
+	for _, product := range data {
+		productResponse = append(productResponse, entity.Product{
+			Id:        product.Id,
+			Name:      product.Name,
+			Sku:       product.Sku,
+			Category:  product.Category,
+			ImageUrl:  product.ImageUrl,
+			Price:     product.Price,
+			Stock:     product.Stock,
+			Location:  product.Location,
+			CreatedAt: product.CreatedAt,
+		})
+	}
+
+	data = productResponse
 
 	return
 }

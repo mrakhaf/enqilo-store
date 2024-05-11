@@ -28,7 +28,7 @@ func (r *repoHandler) SaveProduct(data request.CreateProduct) (id string, create
 	id = utils.GenerateUUID()
 	timeNow := time.Now()
 
-	query := fmt.Sprintf(`INSERT INTO products (id, name, sku, category, imageurl, notes, price, stock, location, isAvailable, createdAt) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %t, '%s')`, id, data.Name, data.Sku, data.Category, data.ImageUrl, data.Notes, data.Price, *data.Stock, data.Location, *data.IsAvailable, timeNow.Format("2006-01-02 15:04:05"))
+	query := fmt.Sprintf(`INSERT INTO products (id, name, sku, category, imageurl, notes, price, stock, location, isAvailable, createdAt) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', %d, %d, '%s', %t, '%s')`, id, data.Name, data.Sku, data.Category, data.ImageUrl, data.Notes, data.Price, data.Stock, data.Location, data.IsAvailable, timeNow.Format("2006-01-02 15:04:05"))
 
 	_, err = r.databaseDB.Exec(query)
 
@@ -43,22 +43,29 @@ func (r *repoHandler) SaveProduct(data request.CreateProduct) (id string, create
 
 func (r *repoHandler) Checkout(data request.Checkout) (id string, createdAt string, err error) {
 
-	for _, detail := range data.ProductDetails {
-		id = utils.GenerateUUID()
-		timeNow := time.Now()
+	idCheckout := utils.GenerateUUID()
+	timeNow := time.Now()
 
-		query := fmt.Sprintf(`INSERT INTO customer_products (id, customerId, productId, quantity, paid, change, createdAt) VALUES ('%s', '%s', '%s', %d, %d, %d, '%s')`, id, data.CustomerId, detail.ProductId, detail.Quantity, data.Paid, data.Change, timeNow.Format("2006-01-02 15:04:05"))
+	query := fmt.Sprintf(`INSERT INTO checkout (id, customerId, paid, change, createdAt) VALUES ('%s', '%s', %d, %d, '%s')`, idCheckout, data.CustomerId, data.Paid, data.Change, timeNow.Format("2006-01-02 15:04:05"))
+	_, err = r.databaseDB.Exec(query)
 
-		_, err = r.databaseDB.Exec(query)
+	if err != nil {
+		return
+	}
 
+	idItem := utils.GenerateUUID()
+
+	for _, product := range data.ProductDetails {
+		queryCheckoutItem := fmt.Sprintf(`INSERT INTO checkout_item (id, checkoutId, productId, quantity, createdAt) VALUES ('%s', '%s', '%s', '%d', '%s')`, idItem, idCheckout, product.ProductId, product.Quantity, timeNow.Format("2006-01-02 15:04:05"))
+		_, err = r.databaseDB.Exec(queryCheckoutItem)
 		if err != nil {
 			return
 		}
-
-		createdAt = timeNow.Format("2006-01-02")
 	}
 
-	return
+	createdAt = timeNow.Format("2006-01-02")
+
+	return idCheckout, createdAt, nil
 }
 
 func (r *repoHandler) SearchSku(query string) (products []entity.Product, err error) {
@@ -84,45 +91,24 @@ func (r *repoHandler) SearchSku(query string) (products []entity.Product, err er
 }
 
 func (r *repoHandler) SearchProducts(query string) (data []entity.Product, err error) {
-
-	row, err := r.databaseDB.Query(query)
+	rows, err := r.databaseDB.Query(query)
 
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return data, nil
-		}
 		return
 	}
 
-	for row.Next() {
-		var id, name, sku, category, imageurl, notes, location string
-		var price, stock int
-		var isAvailable bool
-		var createdAt time.Time
+	defer rows.Close()
 
-		err = row.Scan(&id, &name, &sku, &category, &imageurl, &notes, &price, &stock, &location, &isAvailable, &createdAt)
+	product := entity.Product{}
 
-		if err != nil {
-			return
-		}
+	for rows.Next() {
 
-		data = append(data, entity.Product{
-			Id:          id,
-			Name:        name,
-			Sku:         sku,
-			Category:    category,
-			ImageUrl:    imageurl,
-			Notes:       notes,
-			Price:       price,
-			Stock:       stock,
-			Location:    location,
-			IsAvailable: isAvailable,
-			CreatedAt:   createdAt,
-		})
+		err = rows.Scan(&product.Id, &product.Name, &product.Sku, &product.Category, &product.ImageUrl, &product.Notes, &product.Price, &product.Stock, &product.Location, &product.IsAvailable, &product.CreatedAt)
+
+		data = append(data, product)
 	}
 
 	return
-
 }
 
 func (r *repoHandler) GetDataProductById(id string) (data entity.Product, err error) {
@@ -139,7 +125,7 @@ func (r *repoHandler) GetDataProductById(id string) (data entity.Product, err er
 
 func (r *repoHandler) UpdateProduct(id string, req request.CreateProduct) (err error) {
 
-	_, err = r.databaseDB.Exec(fmt.Sprintf("UPDATE products SET name = '%s', sku = '%s', category = '%s', imageurl = '%s', notes = '%s', price = '%d', stock = '%d', location = '%s', isAvailable = '%t' WHERE id = '%s'", req.Name, req.Sku, req.Category, req.ImageUrl, req.Notes, req.Price, *req.Stock, req.Location, *req.IsAvailable, id))
+	_, err = r.databaseDB.Exec(fmt.Sprintf("UPDATE products SET name = '%s', sku = '%s', category = '%s', imageurl = '%s', notes = '%s', price = '%d', stock = '%d', location = '%s', isAvailable = '%t' WHERE id = '%s'", req.Name, req.Sku, req.Category, req.ImageUrl, req.Notes, req.Price, req.Stock, req.Location, req.IsAvailable, id))
 
 	if err != nil {
 		return
