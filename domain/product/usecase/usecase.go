@@ -130,6 +130,16 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 		}
 	}
 
+	if req.CreatedAt != nil {
+		if *req.CreatedAt == "asc" {
+			query = fmt.Sprintf("%s ORDER BY createdat ASC ", query)
+		} else if *req.CreatedAt == "desc" {
+			query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
+		}
+	} else {
+		query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
+	}
+
 	if req.Limit != nil {
 		query = fmt.Sprintf("%s LIMIT %d", query, *req.Limit)
 	} else {
@@ -140,16 +150,6 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 		query = fmt.Sprintf("%s OFFSET %d", query, *req.Offset)
 	} else {
 		query = fmt.Sprintf("%s OFFSET 0", query)
-	}
-
-	if req.CreatedAt != nil {
-		if *req.CreatedAt == "asc" {
-			query = fmt.Sprintf("%s ORDER BY createdat ASC ", query)
-		} else if *req.CreatedAt == "desc" {
-			query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
-		}
-	} else {
-		query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
 	}
 
 	fmt.Println(query)
