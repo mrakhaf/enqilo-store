@@ -130,12 +130,26 @@ func (u *usecase) SearchProducts(ctx context.Context, req request.GetProducts) (
 		}
 	}
 
+	if req.Limit != nil {
+		query = fmt.Sprintf("%s LIMIT %d", query, *req.Limit)
+	} else {
+		query = fmt.Sprintf("%s LIMIT 5", query)
+	}
+
+	if req.Offset != nil {
+		query = fmt.Sprintf("%s OFFSET %d", query, *req.Offset)
+	} else {
+		query = fmt.Sprintf("%s OFFSET 0", query)
+	}
+
 	if req.CreatedAt != nil {
 		if *req.CreatedAt == "asc" {
 			query = fmt.Sprintf("%s ORDER BY createdat ASC ", query)
 		} else if *req.CreatedAt == "desc" {
 			query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
 		}
+	} else {
+		query = fmt.Sprintf("%s ORDER BY createdat DESC ", query)
 	}
 
 	fmt.Println(query)
@@ -223,7 +237,7 @@ func (u *usecase) SearchSku(req request.SearchProductParam) (data interface{}, e
 		if !firstFilterParam {
 			if *req.InStock == "true" {
 				query = fmt.Sprintf("%s WHERE stock > 0", query)
-				firstFilterParam = true
+				// firstFilterParam = true
 			} else {
 				query = fmt.Sprintf("%s WHERE stock <= 0", query)
 			}
@@ -287,7 +301,7 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 	if req.CustomerId != nil {
 		if !firstFilterParam {
 			query = fmt.Sprintf("%s WHERE cp.id = '%s'", query, *req.CustomerId)
-			firstFilterParam = true
+			// firstFilterParam = true
 		} else {
 			query = fmt.Sprintf("%s AND cp.id = '%s'", query, *req.CustomerId)
 		}
