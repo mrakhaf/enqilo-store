@@ -348,9 +348,11 @@ func (u *usecase) SearchSku(req request.SearchProductParam) (data interface{}, e
 
 func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckoutHistoryParam) (data interface{}, err error) {
 
-	query := "select cp.id as \"transactionId\", c.id as \"customerId\", p.id as \"productId\", cp.quantity, cp.paid, cp.\"change\", cp.createdat from customer_products cp " +
-		"join customer c on cp.customerid = c.id " +
-		"join products p on cp.productid = p.id"
+	query := "select c.id as \"transactionId\", c2.id as \"customerId\", p.id as \"productId\", ci.quantity, c.paid, c.\"change\", c.createdat " +
+		"from checkout c " +
+		"join customer c2 on c.customerid = c2.id " +
+		"join checkout_item ci on c.id = ci.checkoutid " +
+		"join products p on ci.productid = p.id"
 
 	var firstFilterParam bool
 
@@ -385,6 +387,7 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 
 	checkoutHistories, err := u.productRepo.GetCheckoutHistory(query)
 
+	fmt.Println(query, "ini checkout histories")
 	if err != nil {
 		err = fmt.Errorf("failed to get history checkout: %s", err)
 		return
