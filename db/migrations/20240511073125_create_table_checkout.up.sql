@@ -1,0 +1,18 @@
+CREATE TABLE checkout (
+  id VARCHAR(255) PRIMARY KEY,
+  customerId VARCHAR(255) NOT NULL,
+  paid INT NOT NULL,
+  change INt NOT NULL,
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (customerId) REFERENCES customer(id)
+);
+
+CREATE TABLE checkout_item (
+  id VARCHAR(255) PRIMARY KEY,
+  checkoutId VARCHAR(255) NOT NULL,
+  productId VARCHAR(255) NOT NULL,
+  quantity INT NOT NULL CHECK (quantity > 0),
+  createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (checkoutId) REFERENCES checkout(id),
+  FOREIGN KEY (productId) REFERENCES products(id)
+);
