@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -40,6 +41,14 @@ func Contains(s []string, e string) bool {
 		if a == e {
 			return true
 		}
+	}
+	return false
+}
+
+func CheckImageType(url string) bool {
+	url = url[strings.LastIndex(url, ".")+1:]
+	if url == "png" || url == "jpg" || url == "jpeg" {
+		return true
 	}
 	return false
 }

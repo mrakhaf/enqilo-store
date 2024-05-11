@@ -9,6 +9,7 @@ import (
 	"github.com/mrakhaf/enqilo-store/models/request"
 	"github.com/mrakhaf/enqilo-store/shared/common"
 	"github.com/mrakhaf/enqilo-store/shared/common/jwt"
+	"github.com/mrakhaf/enqilo-store/shared/utils"
 )
 
 type handlerProduct struct {
@@ -45,6 +46,12 @@ func (h *handlerProduct) CreateProduct(c echo.Context) error {
 
 	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	isImage := utils.CheckImageType(req.ImageUrl)
+
+	if !isImage {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "image type not supported"})
 	}
 
 	id, createdAt, err := h.usecase.CreateProduct(c.Request().Context(), req)
@@ -120,6 +127,12 @@ func (h *handlerProduct) UpdateProduct(c echo.Context) error {
 
 	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
+	}
+
+	isImage := utils.CheckImageType(req.ImageUrl)
+
+	if !isImage {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": "image type not supported"})
 	}
 
 	_, err := h.repository.GetDataProductById(productID)
