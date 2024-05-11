@@ -25,16 +25,16 @@ type Checkout struct {
 }
 
 type GetProducts struct {
-	Id          *string `json:"id" validate:"omitempty"`
-	Limit       *int    `json:"limit" validate:"omitempty,gte=0,lte=5"`
-	Offset      *int    `json:"offset" validate:"omitempty,gte=0"`
-	Name        *string `json:"name" validate:"omitempty"`
-	IsAvailable *string `json:"isAvailable" validate:"omitempty"`
-	Category    *string `json:"category" validate:"omitempty"`
-	Sku         *string `json:"sku" validate:"omitempty"`
-	Price       *string `json:"price" validate:"omitempty"`
-	InStock     *string `json:"inStock" validate:"omitempty"`
-	CreatedAt   *string `json:"createdAt" validate:"omitempty"`
+	Id          *string `query:"id" validate:"omitempty"`
+	Limit       *int    `query:"limit" validate:"omitempty,gte=0,lte=5"`
+	Offset      *int    `query:"offset" validate:"omitempty,gte=0"`
+	Name        *string `query:"name" validate:"omitempty"`
+	IsAvailable *string `query:"isAvailable" validate:"omitempty"`
+	Category    *string `query:"category" validate:"omitempty"`
+	Sku         *string `query:"sku" validate:"omitempty"`
+	Price       *string `query:"price" validate:"omitempty"`
+	InStock     *string `query:"inStock" validate:"omitempty"`
+	CreatedAt   *string `query:"createdAt" validate:"omitempty"`
 }
 
 type SearchProductParam struct {
