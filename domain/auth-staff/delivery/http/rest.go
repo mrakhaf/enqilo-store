@@ -88,7 +88,7 @@ func (h *handlerAuth) Register(c echo.Context) error {
 	}
 
 	if isEmailExist {
-		return c.JSON(http.StatusConflict, map[string]string{"error": "Email already exist"})
+		return c.JSON(http.StatusConflict, map[string]string{"error": "Phone number already exist"})
 	}
 
 	data, err := h.usecase.Register(c.Request().Context(), req)

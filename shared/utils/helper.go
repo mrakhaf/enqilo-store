@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/google/uuid"
@@ -51,4 +53,14 @@ func CheckImageType(url string) bool {
 		return true
 	}
 	return false
+}
+
+func IsValidPhoneNumber(phoneNumber string) error {
+	phoneNumberRegex := `^\+[0-9]{1,4}-?[0-9]{1,15}$`
+	match, _ := regexp.MatchString(phoneNumberRegex, phoneNumber)
+	if match {
+		return nil
+	}
+
+	return errors.New("format Phone tidak valid")
 }

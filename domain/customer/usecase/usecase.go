@@ -7,6 +7,7 @@ import (
 	"github.com/mrakhaf/enqilo-store/domain/customer/interfaces"
 	"github.com/mrakhaf/enqilo-store/models/request"
 	"github.com/mrakhaf/enqilo-store/models/response"
+	"github.com/mrakhaf/enqilo-store/shared/utils"
 )
 
 type (
@@ -22,6 +23,8 @@ func NewUsecase(repository interfaces.Repository) interfaces.Usecase {
 }
 
 func (u *usecase) Register(ctx context.Context, req request.RegisterCustomer) (data response.CustomerResponse, err error) {
+	utils.IsValidPhoneNumber(req.PhoneNumber)
+
 	isExist, _ := u.repository.GetDataAccount(req.PhoneNumber)
 
 	if isExist.PhoneNumber != "" {

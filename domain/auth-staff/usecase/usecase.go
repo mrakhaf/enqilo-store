@@ -45,6 +45,8 @@ func (u *usecase) Login(ctx context.Context, phoneNumber, password string) (data
 
 func (u *usecase) Register(ctx context.Context, req request.Register) (data dto.AuthResponse, err error) {
 
+	utils.IsValidPhoneNumber(req.PhoneNumber)
+
 	//save db
 	idStaff, err := u.repository.SaveUserAccount(req)
 
