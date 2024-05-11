@@ -1,0 +1,2 @@
+DROP TABLE checkout CASCADE;
+DROP TABLE checkout_item CASCADE;
