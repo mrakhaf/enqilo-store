@@ -9,7 +9,7 @@ type CreateProduct struct {
 	Price       int    `json:"price" validate:"required"`
 	Stock       int    `json:"stock" validate:"required,gte=0,lte=100000"`
 	Location    string `json:"location" validate:"required,min=1,max=200"`
-	IsAvailable bool   `json:"isAvailable" validate:"required"`
+	IsAvailable *bool  `json:"isAvailable" validate:"required"`
 }
 
 type ProductDetails struct {
