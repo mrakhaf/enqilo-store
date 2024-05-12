@@ -50,7 +50,13 @@ func (u *usecase) Checkout(ctx context.Context, req request.Checkout) (id string
 	var total int
 
 	for _, item := range req.ProductDetails {
-		product, _ := u.productRepo.GetDataProductById(item.ProductId)
+		product, errGetProductById := u.productRepo.GetDataProductById(item.ProductId)
+
+		if errGetProductById != nil {
+			err = fmt.Errorf("product not found")
+			return
+		}
+
 		price := product.Price * item.Quantity
 
 		total += price
