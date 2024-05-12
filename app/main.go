@@ -47,10 +47,10 @@ func main() {
 	})
 
 	//create group
-	group := e.Group("/v1")
+	publicGroup := e.Group("/v1")
 
-	productGroup := e.Group("/v1")
-	productGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+	restrictedGroup := e.Group("/v1")
+	restrictedGroup.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningMethod: "HS256",
 		SigningKey:    []byte("secret"),
 		ErrorHandler: func(err error) error {
@@ -65,17 +65,17 @@ func main() {
 	//auth-staff
 	authRepo := authRepository.NewRepository(database)
 	authUsecase := authUsecase.NewUsecase(authRepo, jwtAccess)
-	authStaffHandler.AuthHandler(group, authUsecase, authRepo, formatResponse)
+	authStaffHandler.AuthHandler(publicGroup, authUsecase, authRepo, formatResponse)
 
 	//customer
 	customerRepo := customerRepository.NewRepository(database)
 	customerUsecase := customerUsecase.NewUsecase(customerRepo)
-	customerHandler.CustomerHandler(productGroup, customerUsecase, customerRepo, formatResponse)
+	customerHandler.CustomerHandler(restrictedGroup, customerUsecase, customerRepo, formatResponse)
 
 	//product
 	productRepo := productRepository.NewRepository(database)
 	productUsecase := productUsecase.NewUsecase(customerRepo, productRepo)
-	productHandler.ProductHandler(productGroup, group, productUsecase, productRepo, formatResponse, jwtAccess)
+	productHandler.ProductHandler(restrictedGroup, publicGroup, productUsecase, productRepo, formatResponse, jwtAccess)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))))
 }
