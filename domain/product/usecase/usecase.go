@@ -362,7 +362,7 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 		"from checkout c " +
 		"join customer c2 on c.customerid = c2.id " +
 		"join checkout_item ci on c.id = ci.checkoutid " +
-		"join products p on ci.productid = p.id"
+		"join products p on ci.productid = p.id "
 
 	var firstFilterParam bool
 
@@ -380,6 +380,8 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 		} else if *req.CreatedAt == "desc" {
 			query = fmt.Sprintf("%s ORDER BY c.createdat DESC", query)
 		}
+	} else {
+		query = fmt.Sprintf("%s ORDER BY c.createdat DESC", query)
 	}
 
 	if req.Limit != nil {
@@ -396,7 +398,6 @@ func (u *usecase) GetCheckoutHistory(ctx context.Context, req request.GetCheckou
 
 	checkoutHistories, err := u.productRepo.GetCheckoutHistory(query)
 
-	fmt.Println(query, "ini checkout histories")
 	if err != nil {
 		err = fmt.Errorf("failed to get history checkout: %s", err)
 		return
