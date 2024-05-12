@@ -65,7 +65,6 @@ func (h *handlerProduct) CreateProduct(c echo.Context) error {
 
 func (h *handlerProduct) Checkout(c echo.Context) error {
 	var req request.Checkout
-	var reqProduct []request.ProductDetails
 
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
@@ -75,8 +74,8 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
-	if req := c.Validate(reqProduct); req != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": req.Error()})
+	if err := c.Validate(req.ProductDetails); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
 	id, createdAt, err := h.usecase.Checkout(c.Request().Context(), req)
