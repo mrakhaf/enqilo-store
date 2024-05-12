@@ -74,10 +74,6 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 
-	if err := c.Validate(req.ProductDetails); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
-	}
-
 	id, createdAt, err := h.usecase.Checkout(c.Request().Context(), req)
 
 	switch {
