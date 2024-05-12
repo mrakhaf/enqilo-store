@@ -93,7 +93,7 @@ func (h *handlerProduct) Checkout(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
 	}
 
-	return h.Json.FormatJson(c, http.StatusOK, "success", map[string]string{"id": id, "createdAt": createdAt})
+	return h.Json.FormatJson(c, http.StatusCreated, "success", map[string]string{"id": id, "createdAt": createdAt})
 }
 
 func (h *handlerProduct) GetProducts(c echo.Context) error {
