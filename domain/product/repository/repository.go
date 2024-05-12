@@ -53,9 +53,8 @@ func (r *repoHandler) Checkout(data request.Checkout) (id string, createdAt stri
 		return
 	}
 
-	idItem := utils.GenerateUUID()
-
 	for _, product := range data.ProductDetails {
+		idItem := utils.GenerateUUID()
 		queryCheckoutItem := fmt.Sprintf(`INSERT INTO checkout_item (id, checkoutId, productId, quantity, createdAt) VALUES ('%s', '%s', '%s', '%d', '%s')`, idItem, idCheckout, product.ProductId, product.Quantity, timeNow.Format("2006-01-02 15:04:05"))
 		_, err = r.databaseDB.Exec(queryCheckoutItem)
 		if err != nil {
