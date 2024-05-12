@@ -70,7 +70,7 @@ func main() {
 	//customer
 	customerRepo := customerRepository.NewRepository(database)
 	customerUsecase := customerUsecase.NewUsecase(customerRepo)
-	customerHandler.CustomerHandler(group, customerUsecase, customerRepo, formatResponse)
+	customerHandler.CustomerHandler(productGroup, customerUsecase, customerRepo, formatResponse)
 
 	//product
 	productRepo := productRepository.NewRepository(database)

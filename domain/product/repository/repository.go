@@ -125,7 +125,10 @@ func (r *repoHandler) GetDataProductById(id string) (data entity.Product, err er
 
 func (r *repoHandler) UpdateProduct(id string, req request.CreateProduct) (err error) {
 
-	_, err = r.databaseDB.Exec(fmt.Sprintf("UPDATE products SET name = '%s', sku = '%s', category = '%s', imageurl = '%s', notes = '%s', price = '%d', stock = '%d', location = '%s', isAvailable = '%t' WHERE id = '%s'", req.Name, req.Sku, req.Category, req.ImageUrl, req.Notes, req.Price, req.Stock, req.Location, *req.IsAvailable, id))
+	query := fmt.Sprintf("UPDATE products SET name = '%s', sku = '%s', category = '%s', imageurl = '%s', notes = '%s', price = '%d', stock = '%d', location = '%s', isAvailable = '%t' WHERE id = '%s'", req.Name, req.Sku, req.Category, req.ImageUrl, req.Notes, req.Price, req.Stock, req.Location, *req.IsAvailable, id)
+
+	fmt.Println(query)
+	_, err = r.databaseDB.Exec(query)
 
 	if err != nil {
 		return
